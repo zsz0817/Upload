@@ -1,17 +1,11 @@
 package com.example.shizhuan.upload;
 
+import android.app.AlarmManager;
 import android.app.Application;
-import android.text.TextUtils;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
-import com.tencent.tinker.loader.app.ApplicationLike;
-import com.tinkerpatch.sdk.TinkerPatch;
-import com.tinkerpatch.sdk.loader.TinkerPatchApplicationLike;
-
-import java.util.List;
 
 /**
  * Created by ShiZhuan on 2018/4/25.
@@ -20,59 +14,21 @@ import java.util.List;
 public class MyApplication extends Application {
     private String url;
 
+    private boolean isBound = false;
+
     public static final String TAG = MyApplication.class.getSimpleName();
-    private RequestQueue mRequestQueue;
 
     private static MyApplication mInstance;
-
-    private ApplicationLike tinkerApplicationLike;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-//        // 我们可以从这里获得Tinker加载过程的信息
-        tinkerApplicationLike = TinkerPatchApplicationLike.getTinkerPatchApplicationLike();
-
-        // 初始化TinkerPatch SDK, 更多配置可参照API章节中的,初始化SDK
-        TinkerPatch.init(tinkerApplicationLike)
-                .reflectPatchLibrary()
-                .setPatchRollbackOnScreenOff(true)
-                .setPatchRestartOnSrceenOff(true)
-                .setFetchPatchIntervalByHours(3);
-
-        // 每隔3个小时(通过setFetchPatchIntervalByHours设置)去访问后台时候有更新,通过handler实现轮训的效果
-        TinkerPatch.with().fetchPatchUpdateAndPollWithInterval();
-
+//        startAlarm();
         mInstance = this;
     }
 
     public static synchronized MyApplication getInstance() {
         return mInstance;
-    }
-
-    public RequestQueue getRequestQueue() {
-        if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
-        return mRequestQueue;
-    }
-
-
-    public <T> void addToRequestQueue(Request<T> request, String tag) {
-        request.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-        getRequestQueue().add(request);
-    }
-
-    public <T> void addToRequestQueue(Request<T> request) {
-        request.setTag(TAG);
-        getRequestQueue().add(request);
-    }
-
-    public void cancelPendingRequests() {
-        if (mRequestQueue != null) {
-            mRequestQueue.cancelAll(TAG);
-        }
     }
 
     public void seturl(String url){
@@ -82,4 +38,28 @@ public class MyApplication extends Application {
     public String geturl(){
         return url;
     }
+
+    public void setisBound(boolean var){
+        this.isBound = var;
+    }
+
+    public boolean getisBound(){
+        return isBound;
+    }
+
+//    public void startAlarm(){
+//        /**
+//         首先获得系统服务
+//         */
+//        AlarmManager am = (AlarmManager)
+//                getSystemService(Context.ALARM_SERVICE);
+//
+//        /** 设置闹钟的意图，我这里是去调用一个服务，该服务功能就是获取位置并且上传*/
+//        Intent intent = new Intent(this, LocationService.class);
+//        PendingIntent pendSender = PendingIntent.getService(this, 0, intent, 0);
+//        am.cancel(pendSender);
+//
+//        /**AlarmManager.RTC_WAKEUP 这个参数表示系统会唤醒进程；我设置的间隔时间是10分钟 */
+//        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendSender);
+//    }
 }
